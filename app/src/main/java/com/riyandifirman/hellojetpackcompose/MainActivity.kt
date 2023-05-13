@@ -5,8 +5,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
@@ -16,7 +21,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key.Companion.H
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
@@ -50,7 +54,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(name: String) {
     var isExpanded by remember { mutableStateOf(false)}
-
+    val animatedSizeDp by animateDpAsState(
+        targetValue = if (isExpanded) 120.dp else 80.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
+    
     Row (
         modifier = Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -58,7 +69,7 @@ fun Greeting(name: String) {
         Image(
             painter = painterResource(R.drawable.jetpack_compose),
             contentDescription = "Logo Jetpack Compose",
-            modifier = Modifier.size(80.dp)
+            modifier = Modifier.size(animatedSizeDp)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
@@ -91,8 +102,14 @@ fun HelloJetpackComposeApp() {
 @Composable
 fun GreetingList(names: List<String>) {
     if (names.isNotEmpty()) {
-        Column {
-            for (name in names) {
+//        Column {
+//            for (name in names) {
+//                Greeting(name)
+//            }
+//        }
+        // Change to LazyColumn for better performance
+        LazyColumn {
+            items(names) { name ->
                 Greeting(name)
             }
         }
